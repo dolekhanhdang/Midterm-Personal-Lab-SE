@@ -104,6 +104,7 @@ def registerPage(request):
             username = form.cleaned_data.get('username')
             group = Group.objects.get(name='customer')
             user.groups.add(group)
+            Customer.objects.create(user=user,)
             messages.success(request, 'Account was created')
             return redirect('login')
     context = {'form': form}
@@ -130,7 +131,10 @@ def logoutUser(request):
     logout(request)
     return redirect('login')
 
-
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['customer'])
 def userPage(request):
-    context = {}
+    orders = request.user.customer.order_set.all()
+    print('orders',orders)
+    context = {'orders':orders}
     return render(request, 'accounts/user.html', context)
